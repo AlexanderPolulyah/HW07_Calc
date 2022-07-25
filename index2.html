@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //DOM: ДЗ
+
+        //Calc Live
+        const
+            //операции
+            plus = {
+                sign: '+',//графическое обозначение (отображается на экране)
+                doing: '+'//программное действие (применяется в формуле)
+            },    
+            minus = {
+                sign: '-',
+                doing: '-'
+            },    
+            mul = {
+                sign: 'x',
+                doing: '*'
+            },    
+            div = {
+                sign: '/',
+                doing: '/'
+            },
+            //знаки
+            dot = {
+                sign: ',',
+                doing: '.'
+            },
+            //operSigns = [plus.sign, minus.sign, mul.sign, div.sign],//отображения операций
+            rowHeight = Math.trunc(100 / 6);
+        
+        let mainDiv = document.createElement('div');
+        mainDiv.style.border = 'groove';
+        mainDiv.style.minHeight = '100vh';
+        document.body.appendChild(mainDiv);
+
+        function getDoingBySign(sign){//возвращает математическое действие для графического обозначения
+            switch(sign){
+                case mul.sign:
+                    return mul.doing;
+                case dot.sign:
+                    return dot.doing;
+                default:
+                    return sign;
+            }
+        }
+
+        function addEdit(width){
+            let edit = document.createElement('input');
+            edit.value = 0;
+            edit.style.display = 'inline';
+            edit.style.width = width + '%';
+            edit.style.height = rowHeight / 2 + 'vh';
+            edit.setAttribute('readonly',true);
+            mainDiv.appendChild(edit);
+            return edit;
+        }
+        let edit = addEdit(100);
+
+        function addButton(text, width, func, container){
+            let button = document.createElement('button');
+            button.innerText = text;
+            button.style.display = 'inline';
+            button.style.width = width-2 + '%';
+            button.style.height = rowHeight-2 + 'vh';
+            button.style.margin = '1vh';
+            button.onclick = func;
+            container.appendChild(button);
+        }
+
+        function addButtonsLine(){//добавляет линейку кнопок
+            if(arguments.length > 0){
+                let container = document.createElement('div');//контейнер
+                container.className = 'flex-container';
+                mainDiv.appendChild(container);
+
+                let width = Math.trunc(100 / arguments.length);
+                for(let text of arguments){
+                    let func = null;
+                    switch(text){
+                        case '=': 
+                            func = ()=>{
+                                edit.value = edit.formula = eval(edit.formula);
+                                newInput = true;
+                            };
+                            break;
+                        case 'C': 
+                            func = ()=>{
+                                edit.value = edit.formula = 0;
+                                newInput = true;
+                            };
+                            break;
+                        case plus.sign:
+                        case minus.sign:
+                        case mul.sign:
+                        case plus.sign:
+                            func = ()=>{
+                                edit.formula += getDoingBySign(text);
+                                edit.value += text;
+                                newInput = false;
+                            };
+                            break;
+                        default: 
+                            func = ()=>{
+                                if(newInput){
+                                    edit.value = edit.formula = '';//при вводе новых данных для первой цифры предыдущие данные затираем
+                                }
+                                edit.formula += getDoingBySign(text);
+                                edit.value += text;
+                                newInput = false;
+                            };
+                            break;
+                    }
+                    addButton(text, width, func, container);
+                }
+                mainDiv.appendChild(document.createElement('br'));
+            }
+        }
+
+        addButtonsLine(7,8,9,div.sign);
+        addButtonsLine(4,5,6,mul.sign);
+        addButtonsLine(1,2,3,minus.sign);
+        addButtonsLine(/*'+/-',*/0,dot.sign,plus.sign);
+        addButtonsLine('C','=');
+
+        //делаем гибкое отображение
+        for(let item of document.getElementsByClassName('flex-container')){
+            item.style.display = "flex";
+            item.style['justify-content'] = "space-around";
+        }
+        
+        let newInput = true;//признак нового ввода (старые данные нужно затереть)
+    </script>
+</body>
+</html>
